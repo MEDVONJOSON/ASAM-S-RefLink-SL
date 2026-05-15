@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: reflink-sl
+    runtime: node
+    plan: free
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm build
+    preDeployCommand: pnpm db:deploy
+    startCommand: pnpm start
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: reflink-sl-db
+          property: connectionString
+
+databases:
+  - name: reflink-sl-db
+    plan: basic-256mb

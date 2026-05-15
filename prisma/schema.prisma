@@ -1,0 +1,115 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                     String         @id @default(cuid())
+  name                   String
+  phone                  String         @unique
+  email                  String?        @unique
+  role                   String         // "business" | "referrer" | "admin"
+  passwordHash           String
+  createdAt              DateTime       @default(now())
+  
+  // Referrer-only
+  referrerCode           String?        @unique
+  registeredReferrerCode String?
+  signature              String?        @unique
+  trainingCompleted      Boolean?       @default(false)
+  orangeMoneyNumber      String?
+  
+  // Business-only
+  businessId             String?        @unique
+  
+  // Relations
+  business               Business?      @relation("BusinessOwner")
+  referralLinks          ReferralLink[]
+  sales                  Sale[]         @relation("ReferrerSales")
+  sessions               Session[]
+}
+
+model Business {
+  id            String         @id @default(cuid())
+  ownerId       String         @unique
+  owner         User           @relation("BusinessOwner", fields: [ownerId], references: [id])
+  name          String
+  category      String
+  description   String
+  city          String
+  address       String
+  phone         String
+  commissionPct Float
+  verified      Boolean        @default(false)
+  imageUrl      String?
+  createdAt     DateTime       @default(now())
+  
+  products      Product[]
+  referralLinks ReferralLink[]
+  sales         Sale[]         @relation("BusinessSales")
+}
+
+model ReferralLink {
+  id         String   @id @default(cuid())
+  code       String   @unique
+  referrerId String
+  referrer   User     @relation(fields: [referrerId], references: [id])
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id])
+  clicks     Int      @default(0)
+  createdAt  DateTime @default(now())
+  sales      Sale[]
+}
+
+model Product {
+  id            String   @id @default(cuid())
+  businessId    String
+  business      Business @relation(fields: [businessId], references: [id])
+  name          String
+  description   String
+  price         Float
+  category      String
+  imageUrl      String?
+  status        String   // "pending" | "approved" | "rejected"
+  rejectionNote String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Sale {
+  id               String       @id @default(cuid())
+  businessId       String
+  business         Business     @relation("BusinessSales", fields: [businessId], references: [id])
+  referrerId       String
+  referrer         User         @relation("ReferrerSales", fields: [referrerId], references: [id])
+  referralLinkId   String?
+  referralLink     ReferralLink? @relation(fields: [referralLinkId], references: [id])
+  referralCode     String
+  customerName     String
+  customerPhone    String
+  amount           Float
+  commissionPct    Float
+  commissionAmount Float
+  referrerEarning  Float
+  platformEarning  Float
+  status           String       // "pending" | "confirmed" | "rejected"
+  note             String?
+  createdAt        DateTime     @default(now())
+  confirmedAt      DateTime?
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  @@index([userId])
+  @@index([expiresAt])
+}
