@@ -22,4 +22,6 @@ services:
 
 databases:
   - name: reflink-sl-db
+    databaseName: reflink_sl_db
+    user: reflink_admin
     plan: free
