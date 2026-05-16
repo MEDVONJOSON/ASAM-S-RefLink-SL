@@ -3,8 +3,7 @@ services:
     name: reflink-sl
     runtime: node
     plan: free
-    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm build
-    preDeployCommand: pnpm db:deploy && pnpm admin:create
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm db:deploy && pnpm admin:create && pnpm build
     startCommand: pnpm start
     envVars:
       - key: DATABASE_URL
