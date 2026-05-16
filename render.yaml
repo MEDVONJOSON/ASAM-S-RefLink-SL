@@ -3,7 +3,7 @@ services:
     name: reflink-sl
     runtime: node
     plan: free
-    buildCommand: npm install -g pnpm && pnpm install && pnpm db:deploy && pnpm admin:create && pnpm build
+    buildCommand: npm install -g pnpm && pnpm install && pnpm db:deploy && pnpm db:generate && pnpm admin:create && pnpm build
     startCommand: pnpm start
     envVars:
       - key: NODE_VERSION
