@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -17,6 +17,7 @@ import { Spinner } from "@/components/ui/spinner"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { toast } from "sonner"
 import { mutate } from "swr"
+import { ImagePlus } from "lucide-react"
 
 const CATEGORIES = [
   "Hospitality",
@@ -49,9 +50,30 @@ export function SignupForm({ initialRole }: { initialRole: "business" | "referre
   const [description, setDescription] = useState("")
   const [commissionPct, setCommissionPct] = useState("10")
 
+  // Business image
+  const [businessImageUrl, setBusinessImageUrl] = useState<string | undefined>(undefined)
+  const [imagePreview, setImagePreview] = useState<string | undefined>(undefined)
+  const fileRef = useRef<HTMLInputElement>(null)
+
   // Referrer
   const [orangeMoneyNumber, setOrangeMoneyNumber] = useState("")
   const [registeredReferrerCode, setRegisteredReferrerCode] = useState("")
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (file.size > 4 * 1024 * 1024) {
+      toast.error("Image too large — max 4 MB")
+      return
+    }
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      const dataUrl = ev.target?.result as string
+      setImagePreview(dataUrl)
+      setBusinessImageUrl(dataUrl)
+    }
+    reader.readAsDataURL(file)
+  }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -72,6 +94,7 @@ export function SignupForm({ initialRole }: { initialRole: "business" | "referre
           address,
           description,
           commissionPct: Number(commissionPct),
+          imageUrl: businessImageUrl,
         })
       } else {
         payload.orangeMoneyNumber = orangeMoneyNumber || phone
@@ -170,6 +193,33 @@ export function SignupForm({ initialRole }: { initialRole: "business" | "referre
 
         <TabsContent value="business" className="mt-2">
           <FieldGroup>
+            {/* Business Profile Image Upload */}
+            <Field>
+              <FieldLabel>Business Profile Image</FieldLabel>
+              <div
+                className="relative mt-1 flex h-40 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-white/10 bg-secondary/50 hover:border-primary/40 hover:bg-primary/5 transition-colors overflow-hidden group"
+                onClick={() => fileRef.current?.click()}
+              >
+                {imagePreview ? (
+                  <>
+                    <img src={imagePreview} alt="Business image preview" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white">
+                      <ImagePlus className="h-7 w-7 mb-1.5" />
+                      <span className="text-sm font-medium">Change image</span>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex flex-col items-center gap-1.5 text-muted-foreground">
+                    <ImagePlus className="h-7 w-7" />
+                    <span className="text-sm font-medium">Upload your business image</span>
+                    <span className="text-xs">JPG, PNG, WEBP (max 4 MB)</span>
+                  </div>
+                )}
+              </div>
+              <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+              <FieldDescription>This image will be your business profile on the marketplace. You can change it later in Settings.</FieldDescription>
+            </Field>
+
             <Field>
               <FieldLabel htmlFor="bname">Business name</FieldLabel>
               <Input

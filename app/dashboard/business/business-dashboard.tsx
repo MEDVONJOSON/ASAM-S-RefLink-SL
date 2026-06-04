@@ -26,9 +26,10 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog"
-import { ShieldCheck, Plus, Check, X, ShieldAlert, Wallet, TrendingUp, Receipt, Package } from "lucide-react"
+import { ShieldCheck, Plus, Check, X, ShieldAlert, Wallet, TrendingUp, Receipt, Package, ImagePlus } from "lucide-react"
 import { toast } from "sonner"
 import { ProductsTab } from "./products-tab"
+import { SettingsTab } from "./settings-tab"
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
@@ -62,10 +63,30 @@ export function BusinessDashboard({ user, business }: { user: SafeUser; business
   return (
     <div className="container mx-auto px-4 py-10">
       <header className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p className="text-sm text-muted-foreground">Business dashboard</p>
-          <h1 className="mt-1 text-2xl font-bold tracking-tight md:text-3xl">{business.name}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">{business.category} · {business.city}</p>
+        <div className="flex items-center gap-4">
+          {/* Business profile image thumbnail */}
+          {business.imageUrl ? (
+            <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-white/10 shadow-md">
+              <img src={business.imageUrl} alt={business.name} className="h-full w-full object-cover" />
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => {
+                const settingsTab = document.getElementById("tab-settings")
+                settingsTab?.click()
+              }}
+              className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl border-2 border-dashed border-white/10 bg-secondary/50 hover:border-primary/40 hover:bg-primary/5 transition-colors text-muted-foreground hover:text-primary"
+              title="Upload your business profile image"
+            >
+              <ImagePlus className="h-6 w-6" />
+            </button>
+          )}
+          <div>
+            <p className="text-sm text-muted-foreground">Business dashboard</p>
+            <h1 className="mt-1 text-2xl font-bold tracking-tight md:text-3xl">{business.name}</h1>
+            <p className="mt-1 text-sm text-muted-foreground">{business.category} · {business.city}</p>
+          </div>
         </div>
         {business.verified ? (
           <Badge className="gap-1 bg-accent text-accent-foreground hover:bg-accent">
@@ -92,6 +113,9 @@ export function BusinessDashboard({ user, business }: { user: SafeUser; business
           </TabsTrigger>
           <TabsTrigger value="products" id="tab-products">
             <Package className="h-4 w-4 mr-1.5" /> My Products
+          </TabsTrigger>
+          <TabsTrigger value="settings" id="tab-settings">
+            <ShieldCheck className="h-4 w-4 mr-1.5" /> Settings
           </TabsTrigger>
         </TabsList>
 
@@ -186,6 +210,11 @@ export function BusinessDashboard({ user, business }: { user: SafeUser; business
           <div className="mt-4">
             <ProductsTab businessId={business.id} />
           </div>
+        </TabsContent>
+
+        {/* ── Settings Tab ── */}
+        <TabsContent value="settings">
+          <SettingsTab business={business} />
         </TabsContent>
       </Tabs>
     </div>

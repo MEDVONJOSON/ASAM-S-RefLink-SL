@@ -17,31 +17,28 @@ const categoryColors: Record<string, string> = {
   Other: "from-orange-100 to-amber-50",
 }
 
-const defaultImages = [
-  "/businesses/real-estate.png",
-  "/businesses/auto.png",
-  "/businesses/real-estate.png",
-  "/businesses/plumbing.png",
-]
-
 export function BusinessCard({ business }: { business: Business }) {
   const grad = categoryColors[business.category] ?? categoryColors.Other
-  const imageIndex = business.name.charCodeAt(0) % defaultImages.length
-  const imageUrl = business.imageUrl || defaultImages[imageIndex]
+  const initials = business.name.substring(0, 2).toUpperCase()
 
   return (
     <Card className="group flex h-full flex-col overflow-hidden border-white/10 glass-card transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(0,0,0,0.15)] hover:border-primary/30 bg-card/40">
-      <div className={`relative h-28 bg-gradient-to-br ${grad} overflow-hidden`}>
-        <img
-          src={imageUrl}
-          alt={business.name}
-          className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-          onError={(e) => {
-            // Fallback if specific image fails
-            (e.target as HTMLImageElement).src = defaultImages[imageIndex];
-          }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-500" />
+      <div className={`relative h-28 bg-gradient-to-br ${grad} overflow-hidden flex items-center justify-center`}>
+        {business.imageUrl ? (
+          <img
+            src={business.imageUrl}
+            alt={business.name}
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = "none"
+            }}
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center opacity-70 mix-blend-overlay">
+            <span className="text-5xl font-black tracking-tighter text-black/30">{initials}</span>
+          </div>
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80 group-hover:opacity-60 transition-opacity duration-500" />
 
         {business.verified && (
           <Badge className="absolute right-2 top-2 gap-1 bg-accent text-accent-foreground shadow-lg backdrop-blur-md px-2 py-0.5 text-[10px] font-black uppercase tracking-wider">

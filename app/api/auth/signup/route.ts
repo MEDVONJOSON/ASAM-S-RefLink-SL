@@ -17,6 +17,7 @@ const schema = z.object({
   address: z.string().optional(),
   description: z.string().optional(),
   commissionPct: z.coerce.number().min(5).max(15).optional(),
+  imageUrl: z.string().optional(),
   // Referrer
   orangeMoneyNumber: z.string().optional(),
   registeredReferrerCode: z.string().optional(),
@@ -58,6 +59,7 @@ export async function POST(req: Request) {
         city: data.city!,
         address: data.address || "",
         phone: data.phone,
+        imageUrl: data.imageUrl || undefined,
         commissionPct: data.commissionPct ?? 10,
         verified: false,
       },

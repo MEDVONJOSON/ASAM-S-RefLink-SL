@@ -27,6 +27,28 @@ export default async function BusinessDetailPage({ params }: { params: Promise<{
 
           <div className="mt-6 grid gap-8 lg:grid-cols-[1.6fr_1fr]">
             <div>
+              {/* Business Hero Image */}
+              {biz.imageUrl && (
+                <div className="relative overflow-hidden rounded-3xl mb-6 aspect-video shadow-xl border border-white/10">
+                  <img
+                    src={biz.imageUrl}
+                    alt={biz.name}
+                    className="h-full w-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                  {biz.verified && (
+                    <Badge className="absolute top-4 right-4 gap-1.5 bg-accent text-accent-foreground hover:bg-accent px-3 py-1.5 rounded-full shadow-sm text-sm font-semibold">
+                      <ShieldCheck className="h-4 w-4" /> Verified
+                    </Badge>
+                  )}
+                  <div className="absolute bottom-4 left-5">
+                    <Badge variant="outline" className="border-white/40 bg-white/10 backdrop-blur-md text-white px-3 py-1 text-sm font-semibold rounded-full">
+                      {biz.category}
+                    </Badge>
+                  </div>
+                </div>
+              )}
+
               {/* Business Info Card */}
               <div className="relative overflow-hidden rounded-3xl border border-white/20 glass-card p-10 shadow-xl">
                 <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary rounded-full mix-blend-multiply filter blur-3xl opacity-20" />
@@ -34,9 +56,11 @@ export default async function BusinessDetailPage({ params }: { params: Promise<{
                 
                 <div className="relative z-10 flex flex-wrap items-start justify-between gap-4">
                   <div>
-                    <Badge variant="outline" className="mb-4 border-primary/30 bg-primary/10 text-primary px-3 py-1 text-sm font-semibold rounded-full">
-                      {biz.category}
-                    </Badge>
+                    {!biz.imageUrl && (
+                      <Badge variant="outline" className="mb-4 border-primary/30 bg-primary/10 text-primary px-3 py-1 text-sm font-semibold rounded-full">
+                        {biz.category}
+                      </Badge>
+                    )}
                     <h1 className="text-balance text-4xl font-black tracking-tight md:text-5xl lg:text-6xl text-foreground">
                       {biz.name}
                     </h1>
@@ -49,7 +73,7 @@ export default async function BusinessDetailPage({ params }: { params: Promise<{
                       </span>
                     </div>
                   </div>
-                  {biz.verified && (
+                  {biz.verified && !biz.imageUrl && (
                     <Badge className="gap-1.5 bg-accent text-accent-foreground hover:bg-accent px-3 py-1.5 rounded-full shadow-sm text-sm font-semibold">
                       <ShieldCheck className="h-4 w-4" /> Verified
                     </Badge>
