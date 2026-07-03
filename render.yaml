@@ -9,9 +9,7 @@ services:
       - key: NODE_VERSION
         value: "20"
       - key: DATABASE_URL
-        fromDatabase:
-          name: reflink-sl-db
-          property: connectionString
+        sync: false
       - key: ADMIN_NAME
         value: "RefLink Admin"
       - key: ADMIN_PHONE
@@ -20,9 +18,3 @@ services:
         value: "admin@reflink.sl"
       - key: ADMIN_PASSWORD
         generateValue: true
-
-databases:
-  - name: reflink-sl-db
-    databaseName: reflink_sl_db
-    user: reflink_admin
-    plan: free
