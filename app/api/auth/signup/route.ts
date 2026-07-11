@@ -9,7 +9,7 @@ const schema = z.object({
   phone: z.string().min(6),
   email: z.string().email().optional().or(z.literal("")),
   password: z.string().min(4),
-  role: z.enum(["business", "referrer"]),
+  role: z.enum(["business", "referrer", "client"]),
   // Business
   businessName: z.string().optional(),
   category: z.string().optional(),

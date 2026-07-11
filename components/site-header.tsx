@@ -38,9 +38,11 @@ export function SiteHeader() {
       ? "/dashboard/business"
       : user?.role === "referrer"
         ? "/dashboard/referrer"
-        : user?.role === "admin"
-          ? "/admin"
-          : "/login"
+        : user?.role === "client"
+          ? "/dashboard/client"
+          : user?.role === "admin"
+            ? "/admin"
+            : "/login"
 
   return (
     <header className="sticky top-0 z-50 w-full glass transition-all duration-300">

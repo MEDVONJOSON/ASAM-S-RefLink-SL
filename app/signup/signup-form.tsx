@@ -31,9 +31,9 @@ const CATEGORIES = [
   "Other",
 ]
 
-export function SignupForm({ initialRole }: { initialRole: "business" | "referrer" }) {
+export function SignupForm({ initialRole }: { initialRole: "business" | "referrer" | "client" }) {
   const router = useRouter()
-  const [role, setRole] = useState<"business" | "referrer">(initialRole)
+  const [role, setRole] = useState<"business" | "referrer" | "client">(initialRole)
   const [loading, setLoading] = useState(false)
 
   // Common
@@ -96,7 +96,7 @@ export function SignupForm({ initialRole }: { initialRole: "business" | "referre
           commissionPct: Number(commissionPct),
           imageUrl: businessImageUrl,
         })
-      } else {
+      } else if (role === "referrer") {
         payload.orangeMoneyNumber = orangeMoneyNumber || phone
         payload.registeredReferrerCode = registeredReferrerCode
       }
@@ -110,7 +110,9 @@ export function SignupForm({ initialRole }: { initialRole: "business" | "referre
       if (!res.ok) throw new Error(data.error || "Signup failed")
       await mutate("/api/auth/me")
       toast.success(`Welcome to RefLink SL, ${data.user.name.split(" ")[0]}!`)
-      router.push(role === "business" ? "/dashboard/business" : "/dashboard/referrer")
+      router.push(
+        role === "business" ? "/dashboard/business" : role === "client" ? "/dashboard/client" : "/dashboard/referrer",
+      )
     } catch (e: any) {
       toast.error(e.message)
     } finally {
@@ -121,9 +123,10 @@ export function SignupForm({ initialRole }: { initialRole: "business" | "referre
   return (
     <form onSubmit={onSubmit} className="mt-6">
       <Tabs value={role} onValueChange={(v) => setRole(v as any)}>
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="referrer">I&apos;m a referrer</TabsTrigger>
           <TabsTrigger value="business">I&apos;m a business</TabsTrigger>
+          <TabsTrigger value="client">I&apos;m a client</TabsTrigger>
         </TabsList>
 
         <div className="mt-6">
@@ -289,6 +292,13 @@ export function SignupForm({ initialRole }: { initialRole: "business" | "referre
               </FieldDescription>
             </Field>
           </FieldGroup>
+        </TabsContent>
+
+        <TabsContent value="client" className="mt-2">
+          <p className="text-sm text-muted-foreground">
+            Create a client account to browse verified businesses and track purchases you make using referral codes.
+            No extra details needed — you&apos;re all set with the info above.
+          </p>
         </TabsContent>
       </Tabs>
 

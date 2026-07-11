@@ -37,6 +37,17 @@ export async function GET() {
     })
   }
 
+  if (user.role === "client") {
+    const sales = await prisma.sale.findMany({
+      where: { customerPhone: user.phone },
+      include: { business: true },
+      orderBy: { createdAt: "desc" },
+    })
+    return NextResponse.json({
+      sales: sales.map((s) => ({ ...s, businessName: s.business.name })),
+    })
+  }
+
   if (user.role === "admin") {
     const sales = await prisma.sale.findMany({
       include: { business: true, referrer: true },

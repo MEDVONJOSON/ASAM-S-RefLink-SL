@@ -114,7 +114,7 @@ export async function createUser(input: {
   phone: string
   email?: string
   password: string
-  role: "business" | "referrer"
+  role: "business" | "referrer" | "client"
   orangeMoneyNumber?: string
   registeredReferrerCode?: string
 }): Promise<CurrentUser> {

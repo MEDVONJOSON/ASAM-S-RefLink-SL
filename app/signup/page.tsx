@@ -7,7 +7,8 @@ export const metadata = { title: "Create your account" }
 
 export default async function SignupPage({ searchParams }: { searchParams: Promise<{ role?: string }> }) {
   const sp = await searchParams
-  const initialRole = sp?.role === "business" ? "business" : "referrer"
+  const initialRole =
+    sp?.role === "business" ? "business" : sp?.role === "client" ? "client" : "referrer"
   return (
     <div className="flex min-h-screen flex-col">
       <SiteHeader />

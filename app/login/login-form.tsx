@@ -34,7 +34,9 @@ export function LoginForm() {
           ? "/dashboard/business"
           : role === "referrer"
             ? "/dashboard/referrer"
-            : "/admin",
+            : role === "client"
+              ? "/dashboard/client"
+              : "/admin",
       )
     } catch (e: any) {
       toast.error(e.message)
