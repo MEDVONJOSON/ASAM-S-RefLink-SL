@@ -428,6 +428,16 @@ export default async function LandingPage() {
                   >
                     <Link href="/signup?role=business">List a business</Link>
                   </Button>
+                  <Button
+                    asChild
+                    size="sm"
+                    variant="secondary"
+                    className="h-10 px-5 rounded-xl text-xs font-bold"
+                  >
+                    <Link href="/signup?role=client">
+                      <ShieldCheck className="mr-1.5 h-3.5 w-3.5" /> Join as a customer
+                    </Link>
+                  </Button>
                 </div>
               </div>
 

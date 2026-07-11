@@ -87,6 +87,7 @@ export default function HowItWorksPage() {
             <div className="mt-5 flex flex-wrap gap-3">
               <Button asChild><Link href="/signup?role=referrer">Become a referrer</Link></Button>
               <Button asChild variant="outline"><Link href="/signup?role=business">List your business</Link></Button>
+              <Button asChild variant="outline"><Link href="/signup?role=client">Join as a customer</Link></Button>
             </div>
           </div>
         </section>
