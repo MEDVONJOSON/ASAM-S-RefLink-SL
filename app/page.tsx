@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { BusinessCard } from "@/components/business-card"
+import { ChatWidget } from "@/components/chat-widget"
 import { HeroActions } from "./hero-actions"
 import { listBusinesses, listProducts } from "@/lib/data"
 import {
@@ -454,6 +455,7 @@ export default async function LandingPage() {
         </section>
       </main>
       <SiteFooter />
+      <ChatWidget />
     </div>
   )
 }
