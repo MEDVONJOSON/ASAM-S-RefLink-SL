@@ -48,9 +48,25 @@ export async function POST(req: Request) {
   const encoder = new TextEncoder()
   const readable = new ReadableStream({
     start(controller) {
-      stream.on("text", (delta) => controller.enqueue(encoder.encode(delta)))
-      stream.on("end", () => controller.close())
-      stream.on("error", (err) => controller.error(err))
+      let closed = false
+      const close = () => {
+        if (closed) return
+        closed = true
+        try {
+          controller.close()
+        } catch {}
+      }
+      stream.on("text", (delta) => {
+        if (closed) return
+        controller.enqueue(encoder.encode(delta))
+      })
+      stream.on("end", close)
+      stream.on("error", (err) => {
+        if (closed) return
+        const message = err instanceof Anthropic.APIError ? err.message : "Something went wrong talking to the assistant."
+        controller.enqueue(encoder.encode(message))
+        close()
+      })
     },
     cancel() {
       stream.abort()
