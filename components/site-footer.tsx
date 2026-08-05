@@ -20,7 +20,7 @@ export function SiteFooter() {
               <li><Link href="/businesses" className="hover:text-primary">Browse businesses</Link></li>
               <li><Link href="/how-it-works" className="hover:text-primary">How it works</Link></li>
               <li><Link href="/for-referrers" className="hover:text-primary">For referrers</Link></li>
-              <li><Link href="/signup" className="hover:text-primary">Create account</Link></li>
+              <li><Link href="/get-started" className="hover:text-primary">Create account</Link></li>
             </ul>
           </div>
           <div>
@@ -34,7 +34,10 @@ export function SiteFooter() {
         </div>
         <div className="mt-10 flex flex-col gap-2 border-t border-border/60 pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
           <p>© {new Date().getFullYear()} ASAM&apos;S REFLINK SL. All rights reserved.</p>
-          <p>Powered by Alimzo Services &amp; Marketing</p>
+          <div className="flex items-center gap-4">
+            <p>Powered by Alimzo Services &amp; Marketing</p>
+            <Link href="/admin/login" className="hover:text-primary transition-colors">Admin Login</Link>
+          </div>
         </div>
       </div>
     </footer>

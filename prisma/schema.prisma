@@ -10,11 +10,13 @@ datasource db {
 model User {
   id                     String         @id @default(cuid())
   name                   String
-  phone                  String         @unique
+  phone                  String?        @unique
   email                  String?        @unique
   role                   String         // "business" | "referrer" | "client" | "admin"
-  passwordHash           String
+  passwordHash           String?        // Only required for admin accounts
+  googleId               String?        @unique // For Google Sign-In
   createdAt              DateTime       @default(now())
+  imageUrl               String?
   
   // Referrer-only
   referrerCode           String?        @unique
@@ -31,6 +33,7 @@ model User {
   referralLinks          ReferralLink[]
   sales                  Sale[]         @relation("ReferrerSales")
   sessions               Session[]
+  orders                 Order[]        @relation("ClientOrders")
 }
 
 model Business {
@@ -51,6 +54,7 @@ model Business {
   products      Product[]
   referralLinks ReferralLink[]
   sales         Sale[]         @relation("BusinessSales")
+  orders        Order[]        @relation("BusinessOrders")
 }
 
 model ReferralLink {
@@ -112,4 +116,33 @@ model Session {
 
   @@index([userId])
   @@index([expiresAt])
+}
+
+model OtpCode {
+  id        String   @id @default(cuid())
+  phone     String
+  code      String
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([phone, code])
+}
+
+model Order {
+  id            String   @id @default(cuid())
+  clientId      String
+  client        User     @relation("ClientOrders", fields: [clientId], references: [id])
+  businessId    String
+  business      Business @relation("BusinessOrders", fields: [businessId], references: [id])
+  items         Json     // [{productId, name, price, qty}]
+  totalAmount   Float
+  paymentMethod String   // "orange_money" | "afri_money"
+  mobileNumber  String
+  status        String   @default("pending_payment") // "pending_payment" | "confirmed" | "cancelled"
+  reference     String   @unique
+  createdAt     DateTime @default(now())
+
+  @@index([clientId])
+  @@index([businessId])
 }

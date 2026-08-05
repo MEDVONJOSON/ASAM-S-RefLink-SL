@@ -15,6 +15,7 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { useUser } from "@/lib/use-user"
 import { LogOut, Menu, LayoutDashboard, Store, UserPlus } from "lucide-react"
+import { CartButton } from "./cart-button"
 import {
   Sheet,
   SheetContent,
@@ -71,6 +72,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
+          <CartButton />
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -113,7 +115,7 @@ export function SiteHeader() {
                 <Link href="/login">Log in</Link>
               </Button>
               <Button asChild size="sm">
-                <Link href="/signup">
+                <Link href="/get-started">
                   <UserPlus className="mr-1.5 h-4 w-4" /> Get started
                 </Link>
               </Button>
@@ -121,7 +123,7 @@ export function SiteHeader() {
           )}
         </div>
 
-        <div className="md:hidden">
+        <div className="md:hidden flex items-center gap-2">
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" aria-label="Open menu">
@@ -162,7 +164,7 @@ export function SiteHeader() {
                       <Link href="/login">Log in</Link>
                     </Button>
                     <Button asChild>
-                      <Link href="/signup">Get started</Link>
+                      <Link href="/get-started">Get started</Link>
                     </Button>
                   </div>
                 )}

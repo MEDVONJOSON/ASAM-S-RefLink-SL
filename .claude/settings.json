@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -o \"RefLink SL Guide\\\\|Ask about signing up\" /tmp/home.html)",
+      "Read(//tmp/**)"
+    ]
+  }
+}

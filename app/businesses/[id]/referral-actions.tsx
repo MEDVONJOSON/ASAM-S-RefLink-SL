@@ -64,7 +64,7 @@ export function ReferralActions({
         ) : !user ? (
           <div className="space-y-2">
             <Button asChild className="w-full">
-              <Link href="/signup?role=referrer">Sign up as a referrer</Link>
+              <Link href="/get-started?role=referrer">Sign up as a referrer</Link>
             </Button>
             <Button asChild variant="outline" className="w-full">
               <Link href="/login">I already have an account</Link>

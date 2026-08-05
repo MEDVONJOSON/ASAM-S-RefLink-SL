@@ -3,10 +3,11 @@ export type UserRole = "business" | "referrer" | "client" | "admin"
 export interface User {
   id: string
   name: string
-  phone: string
+  phone?: string
   email?: string
   role: UserRole
-  passwordHash: string
+  passwordHash?: string
+  googleId?: string
   createdAt: Date | string
   // Referrer-only
   referrerCode?: string
@@ -16,6 +17,7 @@ export interface User {
   orangeMoneyNumber?: string
   // Business-only
   businessId?: string
+  imageUrl?: string | null
 }
 
 export type BusinessCategory =
@@ -92,14 +94,35 @@ export interface Sale {
 export interface SafeUser {
   id: string
   name: string
-  phone: string
+  phone?: string
   email?: string
   role: UserRole
+  googleId?: string
   referrerCode?: string
   registeredReferrerCode?: string
   signature?: string
   trainingCompleted?: boolean
   orangeMoneyNumber?: string
   businessId?: string
+  imageUrl?: string | null
   createdAt: Date | string
+}
+
+export interface OtpCode {
+  id: string
+  phone: string
+  code: string
+  expiresAt: Date | string
+  used: boolean
+  createdAt: Date | string
+}
+
+/** Login step detection result */
+export type LoginMethod = "otp" | "code" | "password"
+
+export interface LoginDetectionResult {
+  method: LoginMethod
+  maskedPhone?: string
+  role: UserRole
+  userId: string
 }

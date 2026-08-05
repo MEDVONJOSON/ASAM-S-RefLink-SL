@@ -85,9 +85,9 @@ export default function HowItWorksPage() {
               <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-accent" />Customers pay normal prices</li>
             </ul>
             <div className="mt-5 flex flex-wrap gap-3">
-              <Button asChild><Link href="/signup?role=referrer">Become a referrer</Link></Button>
-              <Button asChild variant="outline"><Link href="/signup?role=business">List your business</Link></Button>
-              <Button asChild variant="outline"><Link href="/signup?role=client">Join as a customer</Link></Button>
+              <Button asChild><Link href="/get-started?role=referrer">Become a referrer</Link></Button>
+              <Button asChild variant="outline"><Link href="/get-started?role=business">List your business</Link></Button>
+              <Button asChild variant="outline"><Link href="/get-started?role=client">Join as a customer</Link></Button>
             </div>
           </div>
         </section>

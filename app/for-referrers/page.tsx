@@ -24,7 +24,7 @@ export default function ForReferrersPage() {
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
               <Button asChild size="lg">
-                <Link href="/signup?role=referrer">Get started — it&apos;s free</Link>
+                <Link href="/get-started?role=referrer">Get started — it&apos;s free</Link>
               </Button>
               <Button asChild size="lg" variant="outline">
                 <Link href="/businesses">Browse businesses</Link>
@@ -73,7 +73,7 @@ export default function ForReferrersPage() {
               <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-accent" /> Refer as many businesses as you want.</li>
               <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-accent" /> Paid to your Orange Money once each sale is confirmed.</li>
             </ul>
-            <Button asChild className="mt-6"><Link href="/signup?role=referrer">Start earning</Link></Button>
+            <Button asChild className="mt-6"><Link href="/get-started?role=referrer">Start earning</Link></Button>
           </div>
         </section>
       </main>

@@ -13,7 +13,7 @@ export default async function Page() {
   if (user.role !== "business") redirect("/")
 
   const business = user.businessId ? await prisma.business.findUnique({ where: { id: user.businessId } }) : null
-  if (!business) redirect("/signup?role=business")
+  if (!business) redirect("/get-started?role=business")
 
   return (
     <div className="flex min-h-screen flex-col">

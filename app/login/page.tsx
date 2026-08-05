@@ -14,13 +14,13 @@ export default function LoginPage() {
           <div className="rounded-2xl border border-border/70 bg-card p-6 md:p-8">
             <h1 className="text-2xl font-bold tracking-tight">Welcome back</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Log in to manage your business or view your referrals.
+              Log in with your phone, email, or code — no password needed.
             </p>
             <LoginForm />
             <p className="mt-6 text-center text-sm text-muted-foreground">
               No account?{" "}
-              <Link href="/signup" className="font-semibold text-primary hover:underline">
-                Create one
+              <Link href="/get-started" className="font-semibold text-primary hover:underline">
+                Get started
               </Link>
             </p>
           </div>

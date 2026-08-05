@@ -1,35 +1,15 @@
-import { SiteHeader } from "@/components/site-header"
-import { SiteFooter } from "@/components/site-footer"
-import { SignupForm } from "./signup-form"
-import Link from "next/link"
+import { redirect } from "next/navigation"
 
-export const metadata = { title: "Create your account" }
+export const metadata = { title: "Get Started" }
 
-export default async function SignupPage({ searchParams }: { searchParams: Promise<{ role?: string }> }) {
+/**
+ * Legacy signup URL — redirects to the new unified /get-started page.
+ * This keeps existing external links working.
+ */
+export default async function SignupRedirectPage({ searchParams }: { searchParams: Promise<{ role?: string }> }) {
   const sp = await searchParams
-  const initialRole =
-    sp?.role === "business" ? "business" : sp?.role === "client" ? "client" : "referrer"
-  return (
-    <div className="flex min-h-screen flex-col">
-      <SiteHeader />
-      <main className="flex flex-1 items-center justify-center px-4 py-12">
-        <div className="w-full max-w-2xl">
-          <div className="rounded-2xl border border-border/70 bg-card p-6 md:p-8">
-            <h1 className="text-2xl font-bold tracking-tight">Create your RefLink SL account</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Free forever. Choose how you want to use the platform.
-            </p>
-            <SignupForm initialRole={initialRole} />
-            <p className="mt-6 text-center text-sm text-muted-foreground">
-              Already have an account?{" "}
-              <Link href="/login" className="font-semibold text-primary hover:underline">
-                Log in
-              </Link>
-            </p>
-          </div>
-        </div>
-      </main>
-      <SiteFooter />
-    </div>
-  )
+  const params = new URLSearchParams()
+  if (sp?.role) params.set("role", sp.role)
+  const target = params.toString() ? `/get-started?${params.toString()}` : "/get-started"
+  redirect(target)
 }

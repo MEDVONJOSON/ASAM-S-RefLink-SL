@@ -56,13 +56,33 @@ export async function POST(req: Request) {
     })
   }
 
-  const link = await prisma.referralLink.create({
-    data: {
-      code: await uniqueReferralCode(),
-      referrerId: user.id,
-      businessId: business.id,
-    },
-  })
+  const baseCode = user.registeredReferrerCode || user.referrerCode || "REF"
 
-  return NextResponse.json({ link: { ...link, businessName: business.name, businessCity: business.city } })
+  // Generate a unique full code (baseCode + random suffix)
+  let newCode: string
+  let attempts = 0
+  do {
+    const randomPart = await uniqueReferralCode()
+    newCode = `${baseCode}-${randomPart}`
+    const exists = await prisma.referralLink.findUnique({ where: { code: newCode } })
+    if (!exists) break
+    attempts++
+  } while (attempts < 10)
+
+  try {
+    const link = await prisma.referralLink.create({
+      data: {
+        code: newCode,
+        referrerId: user.id,
+        businessId: business.id,
+      },
+    })
+
+    return NextResponse.json({ link: { ...link, businessName: business.name, businessCity: business.city } })
+  } catch (error: any) {
+    if (error.code === "P2002") {
+      return NextResponse.json({ error: "Could not generate a unique code. Please try again." }, { status: 500 })
+    }
+    return NextResponse.json({ error: "Failed to create referral link" }, { status: 500 })
+  }
 }

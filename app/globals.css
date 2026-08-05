@@ -199,4 +199,11 @@
   .dark .glass-card {
     @apply bg-card/50 border-white/10;
   }
+  .scrollbar-none {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
 }

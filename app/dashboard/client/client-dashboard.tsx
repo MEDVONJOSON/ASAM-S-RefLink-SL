@@ -4,6 +4,7 @@ import Link from "next/link"
 import useSWR from "swr"
 import { useMemo } from "react"
 import type { SafeUser } from "@/lib/types"
+import { EditProfileModal } from "./edit-profile-modal"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -39,9 +40,12 @@ export function ClientDashboard({ user }: { user: SafeUser }) {
             Hi {user.name.split(" ")[0]} — welcome back.
           </h1>
         </div>
-        <Badge variant="outline" className="gap-1.5 w-fit">
-          <Sparkles className="h-3 w-3" /> Client account
-        </Badge>
+        <div className="flex items-center gap-3">
+          <Badge variant="outline" className="gap-1.5 h-7">
+            <Sparkles className="h-3 w-3" /> Client account
+          </Badge>
+          <EditProfileModal user={user} />
+        </div>
       </header>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-3">

@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import type { Business, Product } from "@/lib/types"
+import type { Business, Product, SafeUser } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -15,7 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { ShieldCheck, ShieldX, Check, X, Package, Clock, Eye } from "lucide-react"
+import { ShieldCheck, ShieldX, Check, X, Package, Clock, Eye, Users, UserCheck } from "lucide-react"
 import { toast } from "sonner"
 import {
   Dialog,
@@ -25,18 +25,27 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
+import { EditAdminProfileModal } from "./edit-profile-modal"
 
 export function AdminDashboard({
+  user,
   businesses,
   sales,
   products,
+  referrers,
+  clients,
 }: {
-  businesses: Business[]
+  user: SafeUser
+  businesses: (Business & { owner: SafeUser })[]
   sales: any[]
   products: Product[]
+  referrers: SafeUser[]
+  clients: SafeUser[]
 }) {
   const router = useRouter()
   const [busy, setBusy] = useState<string | null>(null)
+  const [viewReferrer, setViewReferrer] = useState<SafeUser | null>(null)
+  const [viewBusiness, setViewBusiness] = useState<(Business & { owner: SafeUser }) | null>(null)
 
   async function toggleVerify(b: Business) {
     setBusy(b.id)
@@ -87,14 +96,23 @@ export function AdminDashboard({
 
   return (
     <div className="container mx-auto px-4 py-10">
-      <h1 className="text-2xl font-bold tracking-tight md:text-3xl">RefLink SL — Admin</h1>
-      <p className="text-sm text-muted-foreground">Verify businesses, review products, and confirm referral sales.</p>
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">RefLink SL — Admin</h1>
+          <p className="text-sm text-muted-foreground">Verify businesses, review products, and confirm referral sales.</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <EditAdminProfileModal user={user} />
+        </div>
+      </div>
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-6 grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
         <Stat label="Verified businesses" value={String(verified)} accent />
         <Stat label="Awaiting verification" value={String(pendingBiz)} />
         <Stat label="Pending sales" value={String(pendingSales)} />
         <Stat label="Pending products" value={String(pendingProducts)} warn={pendingProducts > 0} />
+        <Stat label="Total Referrers" value={String(referrers.length)} />
+        <Stat label="Total Clients" value={String(clients.length)} />
       </div>
 
       <Tabs defaultValue="products" className="mt-8">
@@ -110,6 +128,14 @@ export function AdminDashboard({
           </TabsTrigger>
           <TabsTrigger value="businesses">Businesses</TabsTrigger>
           <TabsTrigger value="sales">Sales</TabsTrigger>
+          <TabsTrigger value="referrers">
+            <Users className="h-4 w-4 mr-1.5" />
+            Referrers
+          </TabsTrigger>
+          <TabsTrigger value="clients">
+            <UserCheck className="h-4 w-4 mr-1.5" />
+            Clients
+          </TabsTrigger>
         </TabsList>
 
         {/* ── Products Tab ── */}
@@ -151,18 +177,23 @@ export function AdminDashboard({
                           )}
                         </TableCell>
                         <TableCell className="text-right">
-                          <Button
-                            size="sm"
-                            variant={b.verified ? "outline" : "default"}
-                            disabled={busy === b.id}
-                            onClick={() => toggleVerify(b)}
-                          >
-                            {b.verified ? (
-                              <><ShieldX className="mr-1 h-3.5 w-3.5" /> Unverify</>
-                            ) : (
-                              <><ShieldCheck className="mr-1 h-3.5 w-3.5" /> Verify</>
-                            )}
-                          </Button>
+                          <div className="flex justify-end gap-1.5">
+                            <Button size="sm" variant="outline" onClick={() => setViewBusiness(b)}>
+                              <Eye className="h-3.5 w-3.5 mr-1" /> Profile
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant={b.verified ? "outline" : "default"}
+                              disabled={busy === b.id}
+                              onClick={() => toggleVerify(b)}
+                            >
+                              {b.verified ? (
+                                <><ShieldX className="mr-1 h-3.5 w-3.5" /> Unverify</>
+                              ) : (
+                                <><ShieldCheck className="mr-1 h-3.5 w-3.5" /> Verify</>
+                              )}
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -232,7 +263,180 @@ export function AdminDashboard({
             </CardContent>
           </Card>
         </TabsContent>
+
+        {/* ── Referrers Tab ── */}
+        <TabsContent value="referrers">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">All Registered Referrers</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {referrers.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No referrers registered yet.</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Phone</TableHead>
+                        <TableHead>Code</TableHead>
+                        <TableHead>Joined</TableHead>
+                        <TableHead className="text-right">Action</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {referrers.map((r) => (
+                        <TableRow key={r.id}>
+                          <TableCell className="font-medium">{r.name}</TableCell>
+                          <TableCell>{r.email || "—"}</TableCell>
+                          <TableCell>{r.phone || "—"}</TableCell>
+                          <TableCell className="font-mono text-sm text-primary">{r.referrerCode || "—"}</TableCell>
+                          <TableCell className="text-xs text-muted-foreground">
+                            {new Date(r.createdAt).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button size="sm" variant="outline" onClick={() => setViewReferrer(r)}>
+                              <Eye className="h-3.5 w-3.5 mr-1" /> View Profile
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ── Clients Tab ── */}
+        <TabsContent value="clients">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">All Registered Clients</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {clients.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No clients registered yet.</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Phone</TableHead>
+                        <TableHead>Joined</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {clients.map((c) => (
+                        <TableRow key={c.id}>
+                          <TableCell className="font-medium">{c.name}</TableCell>
+                          <TableCell>{c.email || "—"}</TableCell>
+                          <TableCell>{c.phone || "—"}</TableCell>
+                          <TableCell className="text-xs text-muted-foreground">
+                            {new Date(c.createdAt).toLocaleDateString()}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
+
+      {/* Referrer Details Dialog */}
+      <Dialog open={!!viewReferrer} onOpenChange={(v) => { if (!v) setViewReferrer(null) }}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Referrer Profile Details</DialogTitle>
+          </DialogHeader>
+          <div className="mt-4 flex flex-col items-center gap-3 border-b border-border pb-4">
+            <div className="relative h-20 w-20 overflow-hidden rounded-full border border-white/20 bg-primary/10 flex items-center justify-center text-primary/50 text-2xl font-bold">
+              {viewReferrer?.imageUrl ? (
+                <img src={viewReferrer.imageUrl} alt={viewReferrer.name} className="h-full w-full object-cover" />
+              ) : (
+                viewReferrer?.name?.[0]?.toUpperCase()
+              )}
+            </div>
+            <h2 className="text-lg font-bold">{viewReferrer?.name}</h2>
+            <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20">
+              Referrer
+            </Badge>
+          </div>
+          <div className="space-y-3 mt-4 text-sm">
+            <Row label="Email Address" value={viewReferrer?.email || "No email address"} />
+            <Row label="Phone Number" value={viewReferrer?.phone || "No phone number"} />
+            <Row label="Referrer Code" value={viewReferrer?.referrerCode || "No code"} />
+            <Row label="ASAM's Code" value={viewReferrer?.registeredReferrerCode || "No registration code"} />
+            <Row label="Signature Code" value={viewReferrer?.signature || "No signature"} />
+            <Row label="Orange Money Number" value={viewReferrer?.orangeMoneyNumber || "No phone linked"} />
+            <Row label="Training Completed" value={viewReferrer?.trainingCompleted ? "Yes ✓" : "No ✗"} />
+            <Row label="Date Joined" value={viewReferrer ? new Date(viewReferrer.createdAt).toLocaleDateString() : ""} />
+          </div>
+          <DialogFooter className="mt-6">
+            <Button variant="outline" onClick={() => setViewReferrer(null)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Business Details Dialog */}
+      <Dialog open={!!viewBusiness} onOpenChange={(v) => { if (!v) setViewBusiness(null) }}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Business Profile Details</DialogTitle>
+          </DialogHeader>
+          <div className="mt-4 flex flex-col items-center gap-3 border-b border-border pb-4">
+            <div className="relative h-20 w-20 overflow-hidden rounded-md border border-white/20 bg-primary/10 flex items-center justify-center text-primary/50 text-2xl font-bold">
+              {viewBusiness?.imageUrl ? (
+                <img src={viewBusiness.imageUrl} alt={viewBusiness.name} className="h-full w-full object-cover" />
+              ) : (
+                viewBusiness?.name?.[0]?.toUpperCase()
+              )}
+            </div>
+            <h2 className="text-lg font-bold">{viewBusiness?.name}</h2>
+            <Badge variant="outline" className={viewBusiness?.verified ? "bg-accent/15 text-accent border-accent/20" : "bg-muted text-muted-foreground"}>
+              {viewBusiness?.verified ? "Verified Business" : "Pending Verification"}
+            </Badge>
+          </div>
+          <div className="space-y-4 mt-4 text-sm max-h-[60vh] overflow-y-auto pr-1">
+            <div>
+              <h3 className="font-semibold text-primary mb-1">Business Information</h3>
+              <div className="space-y-2">
+                <Row label="Category" value={viewBusiness?.category ?? ""} />
+                <Row label="Commission Rate" value={`${viewBusiness?.commissionPct ?? 0}%`} />
+                <Row label="City" value={viewBusiness?.city ?? ""} />
+                <Row label="Address" value={viewBusiness?.address ?? ""} />
+                <Row label="Business Phone" value={viewBusiness?.phone ?? ""} />
+                <Row label="Date Registered" value={viewBusiness ? new Date(viewBusiness.createdAt).toLocaleDateString() : ""} />
+              </div>
+            </div>
+
+            <div>
+              <h3 className="font-semibold text-primary mb-1">Business Description</h3>
+              <p className="text-sm leading-relaxed text-muted-foreground p-3 rounded-md bg-secondary/15">{viewBusiness?.description || "No description provided."}</p>
+            </div>
+
+            <div>
+              <h3 className="font-semibold text-primary mb-1">Owner Contact Details</h3>
+              <div className="space-y-2">
+                <Row label="Owner Name" value={viewBusiness?.owner?.name ?? ""} />
+                <Row label="Owner Email" value={viewBusiness?.owner?.email || "No email"} />
+                <Row label="Owner Phone" value={viewBusiness?.owner?.phone || "No phone"} />
+              </div>
+            </div>
+          </div>
+          <DialogFooter className="mt-6">
+            <Button variant="outline" onClick={() => setViewBusiness(null)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

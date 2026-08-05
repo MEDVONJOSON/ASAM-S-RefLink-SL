@@ -72,6 +72,11 @@ export default async function ReferralLandingPage({ params }: { params: Promise<
               <Button asChild variant="outline">
                 <Link href={`/businesses/${biz.id}`}>View full profile</Link>
               </Button>
+              <Button asChild variant="outline">
+                <Link href={`/get-started?role=referrer&ref=${link.code}`}>
+                  Sign up to become a referrer
+                </Link>
+              </Button>
             </div>
           </div>
         </div>

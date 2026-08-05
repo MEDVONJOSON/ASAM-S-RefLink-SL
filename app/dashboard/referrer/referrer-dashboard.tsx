@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/table"
 import { GraduationCap, Wallet, Link as LinkIcon, Copy, Sparkles, TrendingUp } from "lucide-react"
 import { toast } from "sonner"
+import { EditProfileModal } from "./edit-profile-modal"
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
@@ -51,21 +52,26 @@ export function ReferrerDashboard({ user }: { user: SafeUser }) {
   return (
     <div className="container mx-auto px-4 py-10">
       <header className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p className="text-sm text-muted-foreground">Referrer dashboard</p>
-          <h1 className="mt-1 text-2xl font-bold tracking-tight md:text-3xl">
-            Hi {user.name.split(" ")[0]} — let&apos;s earn.
-          </h1>
+        <div className="flex items-center gap-4">
+          {user.imageUrl ? (
+            <img src={user.imageUrl} alt={user.name} className="h-14 w-14 rounded-full object-cover border border-white/20" />
+          ) : (
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-white/20 bg-primary/10 text-xl font-bold text-primary">
+              {user.name[0]?.toUpperCase()}
+            </div>
+          )}
+          <div>
+            <p className="text-sm text-muted-foreground">Referrer dashboard</p>
+            <h1 className="mt-1 text-2xl font-bold tracking-tight md:text-3xl">
+              Hi {user.name.split(" ")[0]} — let&apos;s earn.
+            </h1>
+          </div>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <EditProfileModal user={user} />
           <Badge variant="outline" className="gap-1.5 w-fit">
-            <Sparkles className="h-3 w-3" /> Code: <span className="font-mono">{user.referrerCode}</span>
+            <Sparkles className="h-3 w-3" /> ASAM&apos;S Code: <span className="font-mono">{user.registeredReferrerCode || user.referrerCode}</span>
           </Badge>
-          {user.signature && (
-            <Badge variant="secondary" className="gap-1.5 w-fit bg-primary/10 text-primary border-primary/20">
-              <Sparkles className="h-3 w-3" /> Signature: <span className="font-mono">{user.signature}</span>
-            </Badge>
-          )}
         </div>
       </header>
 
@@ -157,7 +163,7 @@ export function ReferrerDashboard({ user }: { user: SafeUser }) {
               <Row label="Confirmed sales" value={String(sales.filter((s) => s.status === "confirmed").length)} />
               <Row label="Pending sales" value={String(sales.filter((s) => s.status === "pending").length)} />
               <Row label="Rejected sales" value={String(sales.filter((s) => s.status === "rejected").length)} />
-              <Row label="Orange Money" value={user.orangeMoneyNumber || user.phone} mono />
+              <Row label="Orange Money" value={user.orangeMoneyNumber || user.phone || "—"} mono />
             </div>
           </CardContent>
         </Card>

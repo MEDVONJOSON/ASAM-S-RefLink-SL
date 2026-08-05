@@ -418,7 +418,7 @@ export default async function LandingPage() {
                 </p>
                 <div className="mt-6 flex flex-wrap gap-3">
                   <Button asChild size="sm" variant="secondary" className="h-10 px-5 rounded-xl text-xs font-bold">
-                    <Link href="/signup?role=referrer">
+                    <Link href="/get-started?role=referrer">
                       <TrendingUp className="mr-1.5 h-3.5 w-3.5" /> Become a referrer
                     </Link>
                   </Button>
@@ -427,7 +427,7 @@ export default async function LandingPage() {
                     size="sm"
                     className="bg-background text-foreground hover:bg-background/90 h-10 px-5 rounded-xl text-xs font-bold"
                   >
-                    <Link href="/signup?role=business">List a business</Link>
+                    <Link href="/get-started?role=business">List a business</Link>
                   </Button>
                   <Button
                     asChild
@@ -435,7 +435,7 @@ export default async function LandingPage() {
                     variant="secondary"
                     className="h-10 px-5 rounded-xl text-xs font-bold"
                   >
-                    <Link href="/signup?role=client">
+                    <Link href="/get-started?role=client">
                       <ShieldCheck className="mr-1.5 h-3.5 w-3.5" /> Join as a customer
                     </Link>
                   </Button>

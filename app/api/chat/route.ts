@@ -1,19 +1,13 @@
-import Anthropic from "@anthropic-ai/sdk"
 import { z } from "zod"
 
-const SYSTEM_PROMPT = `You are the in-app guide for ASAM'S REFLINK SL, a pay-per-result referral network for Sierra Leone. Help visitors understand the platform and walk them through using it step by step. Only describe features that exist in this app — don't invent anything.
-
-How the platform works:
-- Three account types, created at /signup (a tab picker lets the user choose "I'm a referrer", "I'm a business", or "I'm a client"):
-  1. Referrer — signs up with their name, phone, and an ASAM'S registration code. Gets a unique referrer code and a login "signature". From the marketplace (/businesses) they generate a personal referral link for any verified business, then share that link/code with people. When a business confirms a sale made through their code, the referrer earns 80% of that business's commission (the platform keeps 20%). Referrers track links, clicks, and earnings on /dashboard/referrer, and must complete a short free training to be certified.
-  2. Business — signs up with business name, category, city, address, description, and the commission percentage (5-15%) they'll pay referrers per confirmed sale. Can upload a profile image. Businesses list products/services for approval, review incoming sales reported against their referral codes, and manage everything from /dashboard/business. New listings start unverified until an admin verifies them.
-  3. Client — a simple account for customers/shoppers. No extra signup fields. From /dashboard/client they can browse the marketplace and see their purchase history (matched by phone number) once a business reports a sale for them.
-- /businesses is the public marketplace of verified businesses and approved products/services.
-- /how-it-works explains the referrer/business/customer flows in more depth.
-- /login accepts a phone number, email, or referrer signature plus password.
-- Signing up is free for everyone; there are no upfront fees.
-
-Style: be concise and friendly, use short numbered steps when explaining a process, and when relevant tell the user exactly which page/button to use (e.g. "Go to Sign Up and choose 'I'm a business'"). If asked something outside the scope of this app, say you can only help with using RefLink SL.`
+const KNOWLEDGE_BASE = {
+  overview: "ASAMS RefLink SL turns informal referrals into a structured, paid economy. Businesses list their services, Referrers share links, and Customers buy. The Business pays an agreed commission (5% to 15%), split 80% to the Referrer and 20% to the Platform. Registration is completely free.",
+  referrer: "As a Referrer (Youth/Individual):\n1. Sign up via /get-started with a phone number and an ASAMS Registration Code.\n2. Mark training complete on your dashboard to become certified.\n3. Generate a personal referral link for any business at /businesses.\n4. Share your link! When a business confirms a sale made through your code, you earn 80% of the commission, paid automatically via Orange Money.",
+  business: "As a Business:\n1. Sign up via /get-started with your email and an ASAMS Authorization Code.\n2. Fill out your profile and wait for admin verification.\n3. List products under the 'Products' tab.\n4. When a customer buys and mentions a referral code, click 'Report sale' on your dashboard. You pay the commission (5-15%) to confirm the sale.",
+  client: "As a Client (Customer):\n1. Sign up via /get-started with your phone number.\n2. Browse the marketplace (/businesses) to find verified businesses.\n3. Buy products at normal prices. Remember to mention the referrer's code to ensure they get paid!\n4. Track your purchases on your dashboard.",
+  login: "Login is completely passwordless! Just go to /login, enter your phone, email, or signature code, and you'll receive an OTP.",
+  fees: "Joining ASAMS RefLink SL is completely free! There are no upfront fees. Businesses only pay the agreed commission (5-15%) when a successful sale is made.",
+}
 
 const messageSchema = z.object({
   role: z.enum(["user", "assistant"]),
@@ -25,52 +19,44 @@ const bodySchema = z.object({
 })
 
 export async function POST(req: Request) {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return new Response("The chat assistant isn't configured yet — missing ANTHROPIC_API_KEY.", { status: 503 })
-  }
-
   const body = await req.json().catch(() => null)
   const parsed = bodySchema.safeParse(body)
   if (!parsed.success) {
     return new Response("Invalid request.", { status: 400 })
   }
 
-  const client = new Anthropic()
-  const stream = client.messages.stream({
-    model: "claude-opus-4-8",
-    max_tokens: 1024,
-    system: SYSTEM_PROMPT,
-    thinking: { type: "adaptive" },
-    output_config: { effort: "medium" },
-    messages: parsed.data.messages,
-  })
+  const messages = parsed.data.messages
+  const lastUserMessage = messages.filter((m: any) => m.role === "user").pop()?.content.toLowerCase() || ""
+
+  let responseText = ""
+
+  if (lastUserMessage.includes("referrer") || lastUserMessage.includes("youth") || lastUserMessage.includes("earn") || lastUserMessage.includes("money")) {
+    responseText = KNOWLEDGE_BASE.referrer
+  } else if (lastUserMessage.includes("business") || lastUserMessage.includes("company") || lastUserMessage.includes("list") || lastUserMessage.includes("sell")) {
+    responseText = KNOWLEDGE_BASE.business
+  } else if (lastUserMessage.includes("client") || lastUserMessage.includes("customer") || lastUserMessage.includes("buy")) {
+    responseText = KNOWLEDGE_BASE.client
+  } else if (lastUserMessage.includes("login") || lastUserMessage.includes("password") || lastUserMessage.includes("otp") || lastUserMessage.includes("sign in")) {
+    responseText = KNOWLEDGE_BASE.login
+  } else if (lastUserMessage.includes("fee") || lastUserMessage.includes("cost") || lastUserMessage.includes("pay") || lastUserMessage.includes("commission") || lastUserMessage.includes("price")) {
+    responseText = KNOWLEDGE_BASE.fees
+  } else {
+    responseText = KNOWLEDGE_BASE.overview + "\n\nYou can ask me specifically about being a Referrer, a Business, a Client, or how Login and Fees work!"
+  }
+
+  // Simulate network delay for realism
+  await new Promise(resolve => setTimeout(resolve, 400))
 
   const encoder = new TextEncoder()
   const readable = new ReadableStream({
-    start(controller) {
-      let closed = false
-      const close = () => {
-        if (closed) return
-        closed = true
-        try {
-          controller.close()
-        } catch {}
+    async start(controller) {
+      const chunks = responseText.match(/.{1,4}/g) || []
+      for (const chunk of chunks) {
+        controller.enqueue(encoder.encode(chunk))
+        await new Promise(r => setTimeout(r, 15)) // stream effect
       }
-      stream.on("text", (delta) => {
-        if (closed) return
-        controller.enqueue(encoder.encode(delta))
-      })
-      stream.on("end", close)
-      stream.on("error", (err) => {
-        if (closed) return
-        const message = err instanceof Anthropic.APIError ? err.message : "Something went wrong talking to the assistant."
-        controller.enqueue(encoder.encode(message))
-        close()
-      })
-    },
-    cancel() {
-      stream.abort()
-    },
+      controller.close()
+    }
   })
 
   return new Response(readable, {

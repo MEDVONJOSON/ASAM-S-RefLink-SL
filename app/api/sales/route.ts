@@ -38,6 +38,9 @@ export async function GET() {
   }
 
   if (user.role === "client") {
+    if (!user.phone) {
+      return NextResponse.json({ sales: [] })
+    }
     const sales = await prisma.sale.findMany({
       where: { customerPhone: user.phone },
       include: { business: true },

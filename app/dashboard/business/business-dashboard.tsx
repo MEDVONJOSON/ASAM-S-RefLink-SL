@@ -30,6 +30,7 @@ import { ShieldCheck, Plus, Check, X, ShieldAlert, Wallet, TrendingUp, Receipt, 
 import { toast } from "sonner"
 import { ProductsTab } from "./products-tab"
 import { SettingsTab } from "./settings-tab"
+import { EditProfileModal } from "./edit-profile-modal"
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
@@ -86,17 +87,25 @@ export function BusinessDashboard({ user, business }: { user: SafeUser; business
             <p className="text-sm text-muted-foreground">Business dashboard</p>
             <h1 className="mt-1 text-2xl font-bold tracking-tight md:text-3xl">{business.name}</h1>
             <p className="mt-1 text-sm text-muted-foreground">{business.category} · {business.city}</p>
+            {user.registeredReferrerCode && (
+              <p className="mt-2 text-xs font-mono bg-primary/10 text-primary px-2.5 py-1 rounded-md w-fit font-medium border border-primary/20 shadow-sm">
+                ASAM'S Code: {user.registeredReferrerCode}
+              </p>
+            )}
           </div>
         </div>
-        {business.verified ? (
-          <Badge className="gap-1 bg-accent text-accent-foreground hover:bg-accent">
-            <ShieldCheck className="h-3.5 w-3.5" /> Verified
-          </Badge>
-        ) : (
-          <Badge variant="outline" className="gap-1 border-amber-400 text-amber-600">
-            <ShieldAlert className="h-3.5 w-3.5" /> Awaiting verification
-          </Badge>
-        )}
+        <div className="flex items-center gap-3">
+          {business.verified ? (
+            <Badge className="gap-1 bg-accent text-accent-foreground hover:bg-accent h-7">
+              <ShieldCheck className="h-3.5 w-3.5" /> Verified
+            </Badge>
+          ) : (
+            <Badge variant="outline" className="gap-1 border-amber-400 text-amber-600 h-7">
+              <ShieldAlert className="h-3.5 w-3.5" /> Awaiting verification
+            </Badge>
+          )}
+          <EditProfileModal user={user} />
+        </div>
       </header>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

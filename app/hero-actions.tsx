@@ -19,7 +19,7 @@ export function HeroActions() {
       <div className="mt-7 flex flex-wrap gap-3">
         {/* Enter the App */}
         <Button asChild size="lg" className="gap-2 rounded-full px-7 shadow-md shadow-primary/30">
-          <Link href="/signup">
+          <Link href="/get-started">
             <Download className="h-4 w-4" />
             Enter the App
           </Link>
@@ -122,7 +122,7 @@ export function HeroActions() {
 
             <div className="flex flex-wrap gap-3 pt-2">
               <Button asChild className="rounded-full gap-2" onClick={() => setOpen(false)}>
-                <Link href="/signup">
+                <Link href="/get-started">
                   <Download className="h-4 w-4" /> Enter the App — it&apos;s free
                 </Link>
               </Button>

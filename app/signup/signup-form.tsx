@@ -98,7 +98,7 @@ export function SignupForm({ initialRole }: { initialRole: "business" | "referre
         })
       } else if (role === "referrer") {
         payload.orangeMoneyNumber = orangeMoneyNumber || phone
-        payload.registeredReferrerCode = registeredReferrerCode
+        payload.referCode = registeredReferrerCode
       }
 
       const res = await fetch("/api/auth/signup", {
