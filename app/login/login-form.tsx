@@ -25,15 +25,15 @@ export function LoginForm() {
 
   useEffect(() => {
     const renderGoogleButton = () => {
-      if (typeof window === "undefined" || !window.google) return
+      if (typeof window === "undefined" || !(window as any).google) return
 
-      window.google.accounts.id.initialize({
+      (window as any).google.accounts.id.initialize({
         client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
         callback: handleGoogleCallback,
       })
       
       if (googleButtonRef.current) {
-        window.google.accounts.id.renderButton(googleButtonRef.current, {
+        (window as any).google.accounts.id.renderButton(googleButtonRef.current, {
           theme: "outline",
           size: "large",
           text: "continue_with",
