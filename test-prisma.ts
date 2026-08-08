@@ -3,7 +3,7 @@ async function main() {
   try {
     const user = await prisma.user.findUnique({ where: { googleId: 'test' } });
     console.log('SUCCESS', user);
-  } catch (e) {
+  } catch (e: any) {
     console.error('ERROR:', e.message);
   }
 }
