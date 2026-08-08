@@ -67,8 +67,8 @@ export async function POST(req: Request) {
       name,
       picture,
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error("Google Sign-In Error:", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    return NextResponse.json({ error: error.message || "Internal server error", stack: error.stack }, { status: 500 })
   }
 }

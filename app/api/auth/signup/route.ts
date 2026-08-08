@@ -58,25 +58,30 @@ const googleSchema = z.object({
 })
 
 export async function POST(req: Request) {
-  const body = await req.json().catch(() => null)
-  if (!body || !body.role) {
-    return NextResponse.json({ error: "Role is required" }, { status: 400 })
-  }
+  try {
+    const body = await req.json().catch(() => null)
+    if (!body || !body.role) {
+      return NextResponse.json({ error: "Role is required" }, { status: 400 })
+    }
 
-  // Google Sign-In flow
-  if (body.googleId) {
-    return handleGoogleSignup(body)
-  }
+    // Google Sign-In flow
+    if (body.googleId) {
+      return await handleGoogleSignup(body)
+    }
 
-  switch (body.role) {
-    case "referrer":
-      return handleReferrerSignup(body)
-    case "business":
-      return handleBusinessSignup(body)
-    case "client":
-      return handleClientSignup(body)
-    default:
-      return NextResponse.json({ error: "Invalid role" }, { status: 400 })
+    switch (body.role) {
+      case "referrer":
+        return await handleReferrerSignup(body)
+      case "business":
+        return await handleBusinessSignup(body)
+      case "client":
+        return await handleClientSignup(body)
+      default:
+        return NextResponse.json({ error: "Invalid role" }, { status: 400 })
+    }
+  } catch (error: any) {
+    console.error("Signup Error:", error)
+    return NextResponse.json({ error: error.message || "Internal Server Error", stack: error.stack }, { status: 500 })
   }
 }
 

@@ -25,16 +25,21 @@ const completeSchema = z.object({
 })
 
 export async function POST(req: Request) {
-  const body = await req.json().catch(() => null)
-  if (!body) return NextResponse.json({ error: "Invalid input" }, { status: 400 })
+  try {
+    const body = await req.json().catch(() => null)
+    if (!body) return NextResponse.json({ error: "Invalid input" }, { status: 400 })
 
-  // Step 2: Complete login (has otpCode or password)
-  if (body.otpCode || body.password) {
-    return completeLogin(body)
+    // Step 2: Complete login (has otpCode or password)
+    if (body.otpCode || body.password) {
+      return await completeLogin(body)
+    }
+
+    // Step 1: Identify user and determine login method
+    return await identifyUser(body)
+  } catch (error: any) {
+    console.error("Login Error:", error)
+    return NextResponse.json({ error: error.message || "Internal Server Error", stack: error.stack }, { status: 500 })
   }
-
-  // Step 1: Identify user and determine login method
-  return identifyUser(body)
 }
 
 async function identifyUser(body: unknown) {
